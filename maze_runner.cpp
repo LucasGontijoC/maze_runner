@@ -38,7 +38,7 @@ std::stack<pos_t> valid_positions;
 // memória e retorna a posição inicial
 pos_t load_maze(const char* file_name) {
 	pos_t initial_pos;
-	// Abre o arquivo para leitura (fopen)
+	// teste Abre o arquivo para leitura (fopen)
 
 	// Le o numero de linhas e colunas (fscanf) 
 	// e salva em num_rows e num_cols
