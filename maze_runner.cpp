@@ -1,5 +1,11 @@
 #include <stdio.h>
 #include <stack>
+#include <stdlib.h>
+
+// git add -A
+// git commit -m "comentario"
+// git push origin main
+
 
 // Matriz de char representnado o labirinto
 char** maze; // Voce também pode representar o labirinto como um vetor de vetores de char (vector<vector<char>>)
@@ -38,11 +44,13 @@ std::stack<pos_t> valid_positions;
 // memória e retorna a posição inicial
 pos_t load_maze(const char* file_name) {
 	pos_t initial_pos;
-	// teste Abre o arquivo para leitura (fopen)
-
+	//Abre o arquivo para leitura (fopen)
+	FILE * fp;
+   	fp = fopen ("file.txt", "r");
 	// Le o numero de linhas e colunas (fscanf) 
 	// e salva em num_rows e num_cols
-
+	
+	
 	// Aloca a matriz maze (malloc)
 	for (int i = 0; i < num_rows; ++i)
 		// Aloca cada linha da matriz
