@@ -2,7 +2,8 @@
 #include <stack>
 #include <fstream>
 #include <iostream>
-#include <unistd.h> // Para utilização do usleep
+#include <thread>
+#include <chrono>
 
 using namespace std;
 
@@ -19,8 +20,7 @@ struct pos_t {
     int j;
 };
 
-// Estrutura de dados contendo as próximas posicões a serem exploradas no labirinto
-stack<pos_t> valid_positions;
+bool exitFound = false;
 
 // Função que le o labirinto de um arquivo texto, carrega em memória e retorna a posição inicial
 pos_t load_maze(const char* file_name) {
@@ -61,20 +61,35 @@ void print_maze() {
         }
         printf("\n");
     }
-    usleep(20000);
+}
+// Função que imprime o labirinto com delay
+void print_maze_delay()
+{
+	while (!exitFound)
+	{
+		system("clear");
+		printf("%i %i\n", num_rows, num_cols);
+		print_maze();
+		this_thread::sleep_for(chrono::milliseconds(50)); // Sleep for 500ms
+	}
 }
 
 // Função responsável pela navegação. Recebe como entrada a posição initial e retorna um booleando indicando se a saída foi encontrada.
-bool walk(pos_t pos) {
+void walk(pos_t pos) {
+
+    stack<pos_t> valid_positions;
+	pos_t next_pos;
+	valid_positions.push(pos);
+
     // Repita até que a saída seja encontrada ou não existam mais posições não exploradas
     while (!valid_positions.empty()) {
-        bool exitFound = false;
+        valid_positions.pop();
 
         // Marcar a posição atual com o caractere 'o'
         maze[pos.i][pos.j] = 'o';
+        this_thread::sleep_for(chrono::milliseconds(50));
 
-        system("clear");
-        print_maze();
+        maze[pos.i][pos.j] = '.';
 
         // Verificação do caminho à direita
         if (pos.j < num_cols - 1) {
@@ -117,16 +132,17 @@ bool walk(pos_t pos) {
             }
         }
         
-        if (!valid_positions.empty()) {
-            pos = valid_positions.top();
-            valid_positions.pop();
-        }
+		// Verifica o tamanho da pilha e cria threads para explorar as próximas posições
+		while (valid_positions.size() > 0)
+		{
+			next_pos = valid_positions.top();
+			valid_positions.pop();
+			thread f(walk, next_pos);
+			f.detach();
+		}
         
-        if (exitFound) 
-            return true;
+    
     }
-
-    return false;
 }
 
 int main(int argc, char *argv[])
@@ -139,17 +155,17 @@ int main(int argc, char *argv[])
 
     // Carregar o labirinto com o nome do arquivo recebido como argumento
     pos_t initial_pos = load_maze(argv[1]);
-    valid_positions.push(initial_pos);
-    
-    // Chamar a função de navegação
-    bool exit_found = walk(initial_pos);
-    
+    // Cria thread detached
+    thread t(walk, initial_pos);
+	t.detach();
+    //Imprime o labirinto
+	print_maze_delay();
+
     // Tratamento de erro
-    if (exit_found)
+    if (exitFound)
         printf("Exit found!\n");
     else
         printf("Exit not found.\n");
 
     return 0;
 }
-
